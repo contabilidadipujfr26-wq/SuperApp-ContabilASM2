@@ -1,0 +1,192 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContabilASM - Super App de Inversiones</title>
+    <!-- Tailwind CSS CDN para diseño moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { background-color: #0b0f19; color: #f3f4f6; font-family: system-ui, -apple-system, sans-serif; }
+        .card { background: #111827; border: 1px solid #1f2937; border-radius: 1rem; }
+        .gold-text { color: #f59e0b; }
+        .gold-bg { background-color: #f59e0b; }
+    </style>
+</head>
+<body class="pb-10">
+
+    <!-- Encabezado / Header -->
+    <header class="p-4 border-b border-gray-800 bg-gray-900 sticky top-0 z-50 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <div class="p-2 gold-bg rounded-lg text-black font-bold">ASM</div>
+            <div>
+                <h1 class="font-bold text-lg text-white">ContabilASM</h1>
+                <p class="text-xs text-gray-400">Ascensun DAO & Investment Tracker</p>
+            </div>
+        </div>
+        <span class="text-xs bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-1 rounded-full font-semibold">Bimonetario (USD / VES)</span>
+    </header>
+
+    <main class="p-4 max-w-4xl mx-auto space-y-6">
+
+        <!-- 1. DASHBOARD GENERAL (KPIs) -->
+        <section class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="card p-4">
+                <p class="text-xs text-gray-400">Total Invertido</p>
+                <h2 id="kpi-total-invertido" class="text-xl font-bold text-white mt-1">$0.00</h2>
+                <span class="text-[10px] text-gray-500">USDT / USD</span>
+            </div>
+            <div class="card p-4">
+                <p class="text-xs text-gray-400">Ganancia Est. (USD)</p>
+                <h2 id="kpi-ganancia-estimada" class="text-xl font-bold gold-text mt-1">$0.00</h2>
+                <span class="text-[10px] text-emerald-400">+ROI Activo</span>
+            </div>
+            <div class="card p-4">
+                <p class="text-xs text-gray-400">Proyectos / Nodos</p>
+                <h2 id="kpi-nodos-activos" class="text-xl font-bold text-blue-400 mt-1">0</h2>
+                <span class="text-[10px] text-gray-500">Activos en red</span>
+            </div>
+            <div class="card p-4">
+                <p class="text-xs text-gray-400">Tasa Dólar / BCV</p>
+                <h2 class="text-xl font-bold text-gray-200 mt-1">Bs. 36.50</h2>
+                <span class="text-[10px] text-gray-500">Configurable</span>
+            </div>
+        </section>
+
+        <!-- 2. FORMULARIO DE REGISTRO DIARIO DE INVERSIÓN -->
+        <section class="card p-5">
+            <h3 class="text-md font-bold text-white mb-4 flex items-center gap-2">
+                <i data-lucide="plus-circle" class="w-5 h-5 text-yellow-500"></i> Registrar Inversión / Nodo Diario
+            </h3>
+            <form id="form-inversion" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="text-xs text-gray-400">Nombre del Proyecto / Plataforma</label>
+                    <input type="text" id="nombre-proyecto" placeholder="Ej. Nodo Ascensun #1, Staking ASM" class="w-full mt-1 p-2.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-yellow-500" required>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400">Tipo de Inversión</label>
+                    <select id="tipo-inversion" class="w-full mt-1 p-2.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-yellow-500">
+                        <option value="Nodo">Nodo de Inversión</option>
+                        <option value="Staking (Max 136%)">Staking - ASM (Max 136%)</option>
+                        <option value="Farming (Max 160%)">Farming - T2 + ASM (Max 160%)</option>
+                        <option value="Otro Proyecto">Otro Proyecto</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400">Monto Invertido ($ / USDT)</label>
+                    <input type="number" step="0.01" id="monto-invertido" placeholder="100.00" class="w-full mt-1 p-2.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-yellow-500" required>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400">% ROI Estimado Ganancia</label>
+                    <input type="number" step="0.1" id="porcentaje-roi" placeholder="9.0" class="w-full mt-1 p-2.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-yellow-500" required>
+                </div>
+                <div class="md:col-span-2">
+                    <button type="submit" class="w-full py-3 gold-bg font-bold text-black rounded-lg hover:bg-yellow-600 transition shadow-lg shadow-yellow-500/20">
+                        Guardar Registro de Inversión
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- 3. HISTORIAL Y CONTROL DE PROYECTOS REGISTRADOS -->
+        <section class="card p-5">
+            <h3 class="text-md font-bold text-white mb-4 flex items-center gap-2">
+                <i data-lucide="list" class="w-5 h-5 text-yellow-500"></i> Historial y Estado de Inversiones
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-gray-300">
+                    <thead class="bg-gray-800 text-gray-400 uppercase text-[10px]">
+                        <tr>
+                            <th class="p-3">Proyecto / Tipo</th>
+                            <th class="p-3">Capital Invertido</th>
+                            <th class="p-3">ROI (%)</th>
+                            <th class="p-3">Ganancia Est.</th>
+                            <th class="p-3">Estado</th>
+                            <th class="p-3 text-right">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-inversiones" class="divide-y divide-gray-800">
+                        <!-- Se llena dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- SCRIPT LOGICA INTERACTIVA -->
+    <script>
+        lucide.createIcons();
+
+        // Almacenamiento local de datos
+        let inversiones = JSON.parse(localStorage.getItem('inversiones_asm')) || [
+            { id: 1, proyecto: 'Concilium Node #1', tipo: 'Nodo', monto: 119.6, roi: 9, fecha: '10/01/2026' },
+            { id: 2, proyecto: 'Staking ASM', tipo: 'Staking (Max 136%)', monto: 82.0, roi: 136, fecha: '10/05/2026' }
+        ];
+
+        const form = document.getElementById('form-inversion');
+        const tabla = document.getElementById('tabla-inversiones');
+
+        function actualizarDashboard() {
+            let totalInvertido = 0;
+            let totalGanancia = 0;
+
+            tabla.innerHTML = '';
+
+            inversiones.forEach((item, index) => {
+                const ganancia = (item.monto * (item.roi / 100));
+                totalInvertido += parseFloat(item.monto);
+                totalGanancia += parseFloat(ganancia);
+
+                tabla.innerHTML += `
+                    <tr class="hover:bg-gray-800/50">
+                        <td class="p-3 font-semibold text-white">
+                            ${item.proyecto}
+                            <br><span class="text-[10px] text-gray-500">${item.tipo}</span>
+                        </td>
+                        <td class="p-3">$${parseFloat(item.monto).toFixed(2)}</td>
+                        <td class="p-3 text-yellow-400 font-bold">${item.roi}%</td>
+                        <td class="p-3 text-emerald-400 font-bold">$${ganancia.toFixed(2)}</td>
+                        <td class="p-3"><span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded text-[10px]">Activo</span></td>
+                        <td class="p-3 text-right">
+                            <button onclick="eliminarInversion(${index})" class="text-red-400 hover:text-red-300">Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('kpi-total-invertido').innerText = `$${totalInvertido.toFixed(2)}`;
+            document.getElementById('kpi-ganancia-estimada').innerText = `$${totalGanancia.toFixed(2)}`;
+            document.getElementById('kpi-nodos-activos').innerText = inversiones.length;
+
+            localStorage.setItem('inversiones_asm', JSON.stringify(inversiones));
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const nuevo = {
+                id: Date.now(),
+                proyecto: document.getElementById('nombre-proyecto').value,
+                tipo: document.getElementById('tipo-inversion').value,
+                monto: parseFloat(document.getElementById('monto-invertido').value),
+                roi: parseFloat(document.getElementById('porcentaje-roi').value),
+                fecha: new Date().toLocaleDateString()
+            };
+            inversiones.push(nuevo);
+            actualizarDashboard();
+            form.reset();
+        });
+
+        function eliminarInversion(index) {
+            inversiones.splice(index, 1);
+            actualizarDashboard();
+        }
+
+        // Cargar datos al inicio
+        actualizarDashboard();
+    </script>
+</body>
+</html>
